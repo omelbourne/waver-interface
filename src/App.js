@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { ethers } from "ethers";
-import abi from "./utils/WavePortal.json";
+import abi from "./utils/Waver.json";
 
 const App = () => {
   /*
@@ -12,7 +12,7 @@ const App = () => {
   const [waveText, setWaveText] = useState("");
 
   const [allWaves, setAllWaves] = useState([]);
-  const contractAddress = "0x0D3EcFEC983382037D993891BF9Ad6Dbdd999509";
+  const contractAddress = "0x7a67278706F6cf3C1c8262a393D9dDA9DB5BfA70";
 
   const contractABI = abi.abi;
   
@@ -71,21 +71,21 @@ const App = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+        const waverContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-        let count = await wavePortalContract.getTotalWaves();
+        let count = await waverContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
 
         /*
         * Execute the actual wave from smart contract
         */
-        const waveTxn = await wavePortalContract.wave(waveText, { gasLimit: 300000 })
+        const waveTxn = await waverContract.wave(waveText, { gasLimit: 300000 })
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
         console.log("Mined -- ", waveTxn.hash);
 
-        count = await wavePortalContract.getTotalWaves();
+        count = await waverContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
         
       } else {
@@ -102,12 +102,12 @@ const App = () => {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+        const waverContract = new ethers.Contract(contractAddress, contractABI, signer);
 
         /*
          * Call the getAllWaves method from Smart Contract
          */
-        const waves = await wavePortalContract.getAllWaves();
+        const waves = await waverContract.getAllWaves();
 
 
         /*
@@ -138,7 +138,7 @@ const App = () => {
    * Listen in for emitter events
    */
   useEffect(() => {
-    let wavePortalContract;
+    let waverContract;
   
     const onNewWave = (from, timestamp, message) => {
       console.log("NewWave", from, timestamp, message);
@@ -156,13 +156,13 @@ const App = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
   
-      wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-      wavePortalContract.on("NewWave", onNewWave);
+      waverContract = new ethers.Contract(contractAddress, contractABI, signer);
+      waverContract.on("NewWave", onNewWave);
     }
   
     return () => {
-      if (wavePortalContract) {
-        wavePortalContract.off("NewWave", onNewWave);
+      if (waverContract) {
+        waverContract.off("NewWave", onNewWave);
       }
     };
   }, []);
